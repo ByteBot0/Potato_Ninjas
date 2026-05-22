@@ -13,6 +13,7 @@ const DEFAULT_LAN_IP := "127.0.0.1"
 const DEFAULT_LAN_PORT := 24567
 const MAP_DIR := "user://maps"
 const INPUT_SETTINGS_PATH := "user://input_settings.json"
+const PROFILE_PATH := "user://profile.json"
 const LEGACY_PROJECT_NAMES := ["HookRex Arena"]
 
 var game_mode := DEFAULT_MODE
@@ -31,11 +32,13 @@ var builder_return_map_name := ""
 var builder_return_map_path := ""
 var gameplay_bindings := {}
 var builder_bindings := {}
+var profile := {}
 
 
 func _ready() -> void:
 	reset_input_defaults()
 	load_input_settings()
+	load_profile()
 	apply_gameplay_input_map()
 
 
@@ -298,3 +301,149 @@ func get_saved_maps() -> Array[Dictionary]:
 
 	dir.list_dir_end()
 	return maps
+
+
+func _default_profile() -> Dictionary:
+	return {
+		"gi_color_id": "white",
+		"mask_color_id": "black",
+		"belt_color_id": "white",
+		"accessory_id": "none",
+		"stats": {
+			"kills": 0,
+			"melee_kills": 0
+		}
+	}
+
+
+func load_profile() -> void:
+	profile = _default_profile()
+	if not FileAccess.file_exists(PROFILE_PATH):
+		save_profile()
+		return
+
+	var file := FileAccess.open(PROFILE_PATH, FileAccess.READ)
+	if file == null:
+		return
+
+	var parsed: Variant = JSON.parse_string(file.get_as_text())
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return
+
+	for key in parsed.keys():
+		profile[key] = parsed[key]
+	if typeof(profile.get("stats", {})) != TYPE_DICTIONARY:
+		profile["stats"] = _default_profile()["stats"]
+	_ensure_selected_cosmetics_are_unlocked()
+
+
+func save_profile() -> void:
+	var file := FileAccess.open(PROFILE_PATH, FileAccess.WRITE)
+	if file == null:
+		return
+	file.store_string(JSON.stringify(profile, "\t"))
+
+
+func reset_cosmetics() -> void:
+	profile["gi_color_id"] = "white"
+	profile["mask_color_id"] = "black"
+	profile["belt_color_id"] = "white"
+	profile["accessory_id"] = "none"
+	save_profile()
+
+
+func add_kill_progress(was_melee: bool) -> void:
+	load_profile()
+	var stats: Dictionary = profile.get("stats", {})
+	stats["kills"] = int(stats.get("kills", 0)) + 1
+	if was_melee:
+		stats["melee_kills"] = int(stats.get("melee_kills", 0)) + 1
+	profile["stats"] = stats
+	_ensure_selected_cosmetics_are_unlocked()
+	save_profile()
+
+
+func get_stat(stat_name: String) -> int:
+	var stats: Dictionary = profile.get("stats", {})
+	return int(stats.get(stat_name, 0))
+
+
+func get_current_cosmetics() -> Dictionary:
+	_ensure_selected_cosmetics_are_unlocked()
+	return {
+		"gi_color": get_gi_color(String(profile.get("gi_color_id", "white"))),
+		"mask_color": get_mask_color(String(profile.get("mask_color_id", "black"))),
+		"belt_color": get_belt_color(String(profile.get("belt_color_id", "white"))),
+		"mustache_enabled": String(profile.get("accessory_id", "none")) == "mustache" and is_mustache_unlocked()
+	}
+
+
+func get_gi_options() -> Array[Dictionary]:
+	return [
+		{"id": "white", "name": "Snow Gi", "color": Color(0.91, 0.92, 0.86)},
+		{"id": "blue", "name": "River Gi", "color": Color(0.28, 0.29, 0.68)},
+		{"id": "red", "name": "Ember Gi", "color": Color(0.55, 0.08, 0.09)},
+		{"id": "shadow", "name": "Shadow Gi", "color": Color(0.16, 0.17, 0.19)}
+	]
+
+
+func get_mask_options() -> Array[Dictionary]:
+	return [
+		{"id": "black", "name": "Black Mask", "color": Color(0.055, 0.065, 0.08)},
+		{"id": "red", "name": "Red Mask", "color": Color(0.33, 0.04, 0.05)},
+		{"id": "blue", "name": "Blue Mask", "color": Color(0.08, 0.16, 0.32)},
+		{"id": "green", "name": "Green Mask", "color": Color(0.08, 0.25, 0.14)}
+	]
+
+
+func get_unlocked_belt_options() -> Array[Dictionary]:
+	var options: Array[Dictionary] = [
+		{"id": "white", "name": "White Belt", "color": get_belt_color("white")}
+	]
+	if get_stat("kills") >= 10:
+		options.append({"id": "yellow", "name": "Yellow Belt", "color": get_belt_color("yellow")})
+	if get_stat("kills") >= 25:
+		options.append({"id": "green", "name": "Green Belt", "color": get_belt_color("green")})
+	if get_stat("kills") >= 50:
+		options.append({"id": "black", "name": "Black Belt", "color": get_belt_color("black")})
+	return options
+
+
+func get_gi_color(id: String) -> Color:
+	for option in get_gi_options():
+		if option["id"] == id:
+			return option["color"]
+	return get_gi_options()[0]["color"]
+
+
+func get_mask_color(id: String) -> Color:
+	for option in get_mask_options():
+		if option["id"] == id:
+			return option["color"]
+	return get_mask_options()[0]["color"]
+
+
+func get_belt_color(id: String) -> Color:
+	match id:
+		"yellow":
+			return Color(0.995, 0.998, 0.0)
+		"green":
+			return Color(0.12, 0.62, 0.22)
+		"black":
+			return Color(0.04, 0.035, 0.03)
+		_:
+			return Color(0.92, 0.92, 0.84)
+
+
+func is_mustache_unlocked() -> bool:
+	return get_stat("melee_kills") >= 10
+
+
+func _ensure_selected_cosmetics_are_unlocked() -> void:
+	var unlocked_belts := []
+	for option in get_unlocked_belt_options():
+		unlocked_belts.append(option["id"])
+	if not unlocked_belts.has(profile.get("belt_color_id", "white")):
+		profile["belt_color_id"] = "white"
+	if profile.get("accessory_id", "none") == "mustache" and not is_mustache_unlocked():
+		profile["accessory_id"] = "none"

@@ -61,6 +61,7 @@ const MELEE_TARGET_MASK := PLAYER_HIT_LAYER | BOT_HIT_LAYER
 @onready var eye: Polygon2D = $Eye
 @onready var potato_spots: Polygon2D = $PotatoSpots
 @onready var potato_spot_two: Polygon2D = $PotatoSpotTwo
+@onready var mustache: Polygon2D = $Mustache
 @onready var weapon_visual: Polygon2D = $WeaponVisual
 @onready var staff_spin: Polygon2D = $StaffSpin
 @onready var health_bar: ColorRect = $HealthBar
@@ -110,6 +111,7 @@ var _last_aim_direction := Vector2.RIGHT
 func _ready() -> void:
 	_capture_visual_home_transforms()
 	eye_home_position = eye.position
+	_apply_cosmetics()
 	_update_health_bar()
 	_set_collision_enabled(is_alive)
 	_update_weapon_visual()
@@ -159,7 +161,9 @@ func _process(delta: float) -> void:
 func configure_network_player(peer_id: int, is_local_player: bool, player_color: Color) -> void:
 	network_peer_id = peer_id
 	body.color = base_body_color
-	mask_band.color = player_color.darkened(0.35)
+	_apply_cosmetics()
+	if not is_local_player:
+		mask_band.color = player_color.darkened(0.35)
 	eye_home_position = eye.position
 	set_multiplayer_authority(peer_id)
 	camera.enabled = is_local_player
@@ -290,6 +294,8 @@ func _apply_melee_damage() -> void:
 			hit_direction = (collider.global_position - global_position).normalized()
 			if hit_direction.length_squared() <= 0.01:
 				hit_direction = Vector2(body.scale.x, 0.0)
+		if collider is Object:
+			collider.set_meta("last_damage_kind", "melee")
 		collider.take_damage(melee_damage, hit_direction, self)
 		hit_anyone = true
 
@@ -931,6 +937,20 @@ func _set_collision_enabled(enabled: bool) -> void:
 	collision_shape.set_deferred("disabled", not enabled)
 
 
+func _apply_cosmetics() -> void:
+	var cosmetics := GameSettings.get_current_cosmetics()
+	if gi_top != null:
+		gi_top.color = cosmetics.get("gi_color", gi_top.color)
+	if gi_lapels != null:
+		gi_lapels.color = gi_top.color.darkened(0.22)
+	if mask_band != null:
+		mask_band.color = cosmetics.get("mask_color", mask_band.color)
+	if belt != null:
+		belt.color = cosmetics.get("belt_color", belt.color)
+	if mustache != null:
+		mustache.visible = bool(cosmetics.get("mustache_enabled", false))
+
+
 func _set_facing_direction(direction: float) -> void:
 	if is_zero_approx(direction):
 		return
@@ -949,7 +969,7 @@ func _capture_visual_home_transforms() -> void:
 
 
 func _mirrored_visual_nodes() -> Array:
-	return [body, gi_top, gi_lapels, belt, mask_band, eye, potato_spots, potato_spot_two, weapon_visual, staff_spin, muzzle, shield_ring]
+	return [body, gi_top, gi_lapels, belt, mask_band, eye, potato_spots, potato_spot_two, mustache, weapon_visual, staff_spin, muzzle, shield_ring]
 
 
 func _apply_node_facing(node: Node2D, facing: float) -> void:

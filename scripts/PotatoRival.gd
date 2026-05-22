@@ -22,6 +22,7 @@ const PROJECTILE_SCENE := preload("res://scenes/Projectile.tscn")
 @onready var gi_lapels: Polygon2D = $GiLapels
 @onready var belt: Polygon2D = $Belt
 @onready var mask_band: Polygon2D = $MaskBand
+@onready var eye: Polygon2D = $Eye
 @onready var potato_spots: Polygon2D = $PotatoSpots
 @onready var potato_spot_two: Polygon2D = $PotatoSpotTwo
 @onready var health_bar: ColorRect = $HealthBar
@@ -351,7 +352,7 @@ func _capture_visual_home_transforms() -> void:
 
 
 func _mirrored_visual_nodes() -> Array:
-	return [body, gi_top, gi_lapels, belt, mask_band, potato_spots, potato_spot_two]
+	return [body, gi_top, gi_lapels, belt, mask_band, eye, potato_spots, potato_spot_two]
 
 
 func _apply_node_facing(node: Node2D, facing: float) -> void:

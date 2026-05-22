@@ -97,6 +97,8 @@ func _get_collision_excludes() -> Array[RID]:
 func _apply_hit(hit: Dictionary) -> void:
 	var collider: Object = hit.get("collider")
 	if deals_damage and collider != null and collider.has_method("take_damage"):
+		if collider is Object:
+			collider.set_meta("last_damage_kind", "projectile")
 		collider.take_damage(damage, direction, shooter)
 		if poison_damage > 0 and poison_duration > 0.0 and collider.has_method("apply_poison"):
 			collider.apply_poison(poison_damage, poison_duration, shooter)

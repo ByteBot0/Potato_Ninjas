@@ -919,6 +919,7 @@ func _on_rival_died(_victim: Node, attacker: Node) -> void:
 	add_screen_shake(6.0)
 	if attacker == player:
 		player_score += 1
+		GameSettings.add_kill_progress(String(_victim.get_meta("last_damage_kind", "")) == "melee")
 
 
 func _on_player_died(_victim: Node, attacker: Node) -> void:

@@ -3,6 +3,8 @@ extends Control
 const ARENA_SCENE := "res://scenes/TestArena.tscn"
 const MAP_BUILDER_SCENE := "res://scenes/MapBuilder.tscn"
 const CONTROLS_SCENE := "res://scenes/ControlsSettings.tscn"
+const CHARACTER_EDITOR_SCENE := "res://scenes/CharacterEditor.tscn"
+const PREVIEW_SCRIPT := preload("res://scripts/CharacterPreview.gd")
 
 @onready var mode_options: OptionButton = %ModeOptions
 @onready var map_options: OptionButton = %MapOptions
@@ -24,11 +26,13 @@ const CONTROLS_SCENE := "res://scenes/ControlsSettings.tscn"
 @onready var version_label: Label = %VersionLabel
 
 var map_paths: Array[String] = []
+var character_preview: Control
 
 
 func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color(0.08, 0.11, 0.16))
 	version_label.text = "Version %s" % GameSettings.GAME_VERSION
+	_build_character_panel()
 	_populate_options()
 	_load_settings_into_ui()
 	bot_count_slider.value_changed.connect(_on_bot_count_changed)
@@ -191,3 +195,39 @@ func _configure_network_peer() -> bool:
 
 	multiplayer.multiplayer_peer = peer
 	return true
+
+
+func _build_character_panel() -> void:
+	var panel := Panel.new()
+	panel.position = Vector2(32, 176)
+	panel.size = Vector2(260, 360)
+	add_child(panel)
+
+	var title := Label.new()
+	title.text = "Character"
+	title.position = Vector2(22, 18)
+	title.size = Vector2(216, 28)
+	title.add_theme_font_size_override("font_size", 20)
+	title.add_theme_color_override("font_color", Color(0.93, 0.97, 1.0))
+	panel.add_child(title)
+
+	character_preview = Control.new()
+	character_preview.set_script(PREVIEW_SCRIPT)
+	character_preview.position = Vector2(28, 48)
+	character_preview.size = Vector2(204, 240)
+	panel.add_child(character_preview)
+	character_preview.set_cosmetics(GameSettings.get_current_cosmetics())
+
+	var preview_button := Button.new()
+	preview_button.flat = true
+	preview_button.position = character_preview.position
+	preview_button.size = character_preview.size
+	preview_button.pressed.connect(func() -> void: get_tree().change_scene_to_file(CHARACTER_EDITOR_SCENE))
+	panel.add_child(preview_button)
+
+	var button := Button.new()
+	button.text = "Edit"
+	button.position = Vector2(34, 300)
+	button.size = Vector2(192, 38)
+	button.pressed.connect(func() -> void: get_tree().change_scene_to_file(CHARACTER_EDITOR_SCENE))
+	panel.add_child(button)

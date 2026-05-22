@@ -54,6 +54,12 @@ position = Vector2(10, -14)
 color = Color(0.86, 0.94, 1, 1)
 polygon = PackedVector2Array(-3, -2, 3, -2, 3, 2, -3, 2)
 
+[node name="Mustache" type="Polygon2D" parent="." unique_id=287945501]
+visible = false
+position = Vector2(7, -8)
+color = Color(0.06, 0.04, 0.03, 1)
+polygon = PackedVector2Array(-9, 1, -2, -2, 0, 0, 2, -2, 10, 1, 2, 4, 0, 2, -2, 4)
+
 [node name="WeaponVisual" type="Polygon2D" parent="." unique_id=1599383628]
 visible = false
 position = Vector2(26, -8)
