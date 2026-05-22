@@ -1,0 +1,32 @@
+# Godot local/editor state
+.godot/
+.import/
+*.tmp
+*.translation
+
+# Exported builds and local packaging
+builds/
+exports/
+*.pck
+*.exe
+*.x86_64
+*.apk
+*.aab
+*.dmg
+*.zip
+*.tar.gz
+*.AppImage
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Personal save data belongs in Godot's user:// folder, not the repo.
+# Current examples:
+#   user://maps
+#   user://input_settings.json
+# Future examples:
+#   user://profile.json
+#   user://unlocks.json

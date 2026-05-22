@@ -1,0 +1,29 @@
+[gd_scene load_steps=3 format=3 uid="uid://hookrex_pickup"]
+
+[ext_resource type="Script" path="res://scripts/Pickup.gd" id="1_s3i4v"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_486xm"]
+radius = 22.0
+
+[node name="Pickup" type="Area2D"]
+collision_layer = 16
+collision_mask = 6
+script = ExtResource("1_s3i4v")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_486xm")
+
+[node name="Body" type="Polygon2D" parent="."]
+color = Color(1, 0.63, 0.24, 1)
+polygon = PackedVector2Array(0, -24, 17, -17, 24, 0, 17, 17, 0, 24, -17, 17, -24, 0, -17, -17)
+
+[node name="Icon" type="Label" parent="."]
+offset_left = -13.0
+offset_top = -15.0
+offset_right = 13.0
+offset_bottom = 15.0
+theme_override_colors/font_color = Color(0.06, 0.08, 0.1, 1)
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "S"
