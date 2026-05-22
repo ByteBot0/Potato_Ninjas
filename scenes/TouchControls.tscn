@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://hookrex_touch_controls"]
+
+[ext_resource type="Script" path="res://scripts/TouchControls.gd" id="1_b43xg"]
+
+[node name="TouchControls" type="CanvasLayer"]
+layer = 20
+script = ExtResource("1_b43xg")

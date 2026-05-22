@@ -1,0 +1,76 @@
+[gd_scene format=3 uid="uid://c3h7jhpj2n4jm"]
+
+[ext_resource type="Script" uid="uid://00rulwqtwt28" path="res://scripts/Player.gd" id="1_jsl2y"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_qgm26"]
+radius = 18.0
+height = 54.0
+
+[node name="Player" type="CharacterBody2D" unique_id=873799469]
+collision_layer = 2
+collision_mask = 193
+script = ExtResource("1_jsl2y")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1961030283]
+shape = SubResource("CapsuleShape2D_qgm26")
+
+[node name="Body" type="Polygon2D" parent="." unique_id=54973208]
+color = Color(0.12, 0.16, 0.2, 1)
+polygon = PackedVector2Array(-18, -20, -8, -30, 12, -28, 21, -13, 18, 18, 8, 31, -12, 28, -21, 12)
+
+[node name="MaskBand" type="Polygon2D" parent="." unique_id=1599383630]
+position = Vector2(0, -14)
+color = Color(0.035, 0.045, 0.06, 1)
+polygon = PackedVector2Array(-15, -4, 16, -4, 16, 4, -15, 4)
+
+[node name="Eye" type="Polygon2D" parent="." unique_id=97552798]
+position = Vector2(8, -14)
+color = Color(0.86, 0.94, 1, 1)
+polygon = PackedVector2Array(-3, -2, 3, -2, 3, 2, -3, 2)
+
+[node name="WeaponVisual" type="Polygon2D" parent="." unique_id=1599383628]
+position = Vector2(26, -8)
+color = Color(0.56, 0.58, 0.6, 1)
+polygon = PackedVector2Array(-12, -5, -4, -8, 14, -8, 22, -4, 31, -3, 34, 0, 31, 3, 10, 4, 5, 8, -1, 8, -4, 4, -12, 6)
+
+[node name="StaffSpin" type="Polygon2D" parent="." unique_id=344872903]
+visible = false
+color = Color(0.62, 0.42, 0.24, 0.9)
+polygon = PackedVector2Array(-62, -3, 62, -3, 62, 3, -62, 3)
+
+[node name="HealthBack" type="ColorRect" parent="." unique_id=1600526595]
+offset_left = -24.0
+offset_top = -46.0
+offset_right = 24.0
+offset_bottom = -40.0
+color = Color(0.16, 0.06, 0.06, 1)
+
+[node name="HealthBar" type="ColorRect" parent="." unique_id=1476898100]
+offset_left = -24.0
+offset_top = -46.0
+offset_right = 24.0
+offset_bottom = -40.0
+color = Color(0.45, 0.95, 0.42, 1)
+
+[node name="HookRope" type="Line2D" parent="." unique_id=1844403862]
+visible = false
+width = 3.0
+default_color = Color(0.956863, 0.788235, 0.317647, 1)
+
+[node name="HookTip" type="Polygon2D" parent="." unique_id=73797751]
+visible = false
+color = Color(0.956863, 0.788235, 0.317647, 1)
+polygon = PackedVector2Array(0, -6, 7, 0, 0, 6, -7, 0)
+
+[node name="Muzzle" type="Marker2D" parent="." unique_id=1627363038]
+position = Vector2(22, -8)
+
+[node name="ShieldRing" type="Line2D" parent="." unique_id=949222763]
+visible = false
+points = PackedVector2Array(25, 0, 20, 15, 7, 24, -8, 24, -21, 14, -25, 0, -20, -15, -7, -24, 8, -24, 21, -14, 25, 0)
+width = 3.0
+default_color = Color(0.48, 0.72, 1, 0.75)
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=725948422]
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
