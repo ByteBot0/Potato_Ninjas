@@ -15,28 +15,55 @@ script = ExtResource("1_jsl2y")
 shape = SubResource("CapsuleShape2D_qgm26")
 
 [node name="Body" type="Polygon2D" parent="." unique_id=54973208]
-color = Color(0.12, 0.16, 0.2, 1)
-polygon = PackedVector2Array(-18, -20, -8, -30, 12, -28, 21, -13, 18, 18, 8, 31, -12, 28, -21, 12)
+color = Color(0.78, 0.56, 0.31, 1)
+polygon = PackedVector2Array(-16, -24, -5, -33, 12, -29, 22, -14, 20, 10, 12, 29, -5, 34, -19, 24, -23, 4, -21, -13)
+
+[node name="PotatoSpots" type="Polygon2D" parent="." unique_id=287945311]
+color = Color(0.46, 0.29, 0.14, 0.42)
+polygon = PackedVector2Array(-9, 9, -5, 6, -1, 9, -3, 14, -8, 14)
+
+[node name="PotatoSpotTwo" type="Polygon2D" parent="." unique_id=287945312]
+position = Vector2(9, 18)
+color = Color(0.46, 0.29, 0.14, 0.34)
+polygon = PackedVector2Array(-3, -3, 2, -4, 5, 0, 2, 4, -3, 3, -5, 0)
+
+[node name="GiTop" type="Polygon2D" parent="." unique_id=287945401]
+position = Vector2(-2, 2)
+color = Color(0.91, 0.92, 0.86, 1)
+polygon = PackedVector2Array(-20, -6, -12, -6, 0, 0, 3, 6, 11, -5, 23, -5, 22, 8, 15, 27, -3, 33, -17, 22, -22, 3)
+
+[node name="GiLapels" type="Polygon2D" parent="." unique_id=287945402]
+position = Vector2(12, 17)
+scale = Vector2(1, 0.7179488)
+color = Color(0.72, 0.73, 0.68, 1)
+polygon = PackedVector2Array(-18, -23.678568, -14, -20.892855, -11, -12.535712, -5, -25.071424, -3, -22.285711, -10, -8.3571415, -5, 6.964285, -8, 6.964285)
+
+[node name="Belt" type="Polygon2D" parent="." unique_id=287945403]
+position = Vector2(0, 21)
+color = Color(0.99564403, 0.9977706, 7.70092e-07, 0.99607843)
+polygon = PackedVector2Array(-29, 6, -21, -4, 17, -3, 16, 2, -19, 1, -27, 8, -29, 8, -21, -1, -29, 7)
 
 [node name="MaskBand" type="Polygon2D" parent="." unique_id=1599383630]
-position = Vector2(0, -14)
-color = Color(0.035, 0.045, 0.06, 1)
-polygon = PackedVector2Array(-15, -4, 16, -4, 16, 4, -15, 4)
+position = Vector2(0.48571396, -14)
+scale = Vector2(1.0285715, 1)
+color = Color(0.055, 0.065, 0.08, 1)
+polygon = PackedVector2Array(-24.777775, -4, -17.97222, -5, 19.944445, -2, 20.916666, 0, 17.027777, 4, -20.888887, 1, -23.805553, 0, -21.861109, -2)
 
 [node name="Eye" type="Polygon2D" parent="." unique_id=97552798]
-position = Vector2(8, -14)
+position = Vector2(10, -14)
 color = Color(0.86, 0.94, 1, 1)
 polygon = PackedVector2Array(-3, -2, 3, -2, 3, 2, -3, 2)
 
 [node name="WeaponVisual" type="Polygon2D" parent="." unique_id=1599383628]
+visible = false
 position = Vector2(26, -8)
-color = Color(0.56, 0.58, 0.6, 1)
-polygon = PackedVector2Array(-12, -5, -4, -8, 14, -8, 22, -4, 31, -3, 34, 0, 31, 3, 10, 4, 5, 8, -1, 8, -4, 4, -12, 6)
+color = Color(0.64, 0.66, 0.68, 1)
+polygon = PackedVector2Array(0, -11, 4, -4, 12, 0, 4, 4, 0, 11, -4, 4, -12, 0, -4, -4)
 
 [node name="StaffSpin" type="Polygon2D" parent="." unique_id=344872903]
 visible = false
-color = Color(0.62, 0.42, 0.24, 0.9)
-polygon = PackedVector2Array(-62, -3, 62, -3, 62, 3, -62, 3)
+color = Color(0.74, 0.48, 0.24, 0.96)
+polygon = PackedVector2Array(-66, -5, 66, -5, 66, 5, -66, 5)
 
 [node name="HealthBack" type="ColorRect" parent="." unique_id=1600526595]
 offset_left = -24.0

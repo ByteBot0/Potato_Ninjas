@@ -1,17 +1,17 @@
-# HookRex Arena
+# Potato Ninjas
 
-Linux-first Godot 4 prototype for a 2D side-view arena shooter built around a permanent grappling hook.
+Linux-first Godot 4 prototype for a 2D side-view ninja-potato arena shooter built around a permanent grappling hook.
 
 ## Direction Notes
 
-The prototype is moving toward a ninja arena theme:
+The prototype is moving toward a ninja-potato arena theme:
 
-- Ninjas with grappling hooks instead of dinos with guns
+- Potato ninjas with grappling hooks
 - Throwing stars as the base weapon direction
 - Bo staff melee
 - Possible pickups such as kusarigama, rapid throwing stars, poison blowdarts, metsubushi, smoke/defense tools, and later grenades/bombs if they still fit
 - Future player-grappling where hooks can pull opponents in, with clear break rules
-- Future cosmetic achievement unlocks such as skins, uniforms, masks, hook variants, titles, and badges
+- Future cosmetic achievement unlocks such as belts, skins, uniforms, masks, hook variants, titles, and badges
 - Unlocks should not make experienced players stronger than new players
 - Future movement experiments: ducking and dashing
 - Future map dressing: custom backgrounds plus foreground bushes/trees/bamboo for concealment
@@ -20,18 +20,18 @@ The prototype is moving toward a ninja arena theme:
 
 Phase 7: Android Readiness
 
-- Placeholder ninja character
+- Placeholder potato ninja character
 - Generated rectangle arena
 - Gravity, running, jumping, and fast fall
 - Mouse-aimed right-click grappling hook
 - Limited hook range
-- Hook collision against platform surfaces only
+- Hook collision against platform surfaces and hazard objects
 - Rope and hook tip rendering
 - Auto-reel pull toward the hook point
 - Hanging near walls, ceilings, and platforms while right mouse is held
 - Momentum-preserving detach on right mouse release
 - Left-click throwing stars
-- Projectile collision against platforms, bots, and the player
+- Projectile collision against platforms, rivals, and the player
 - Shooting while grounded, airborne, hooked, and hanging
 - 3-minute offline deathmatch timer
 - 4 simple rival ninjas that chase, jump, shoot, take damage, and respawn
@@ -57,7 +57,7 @@ Phase 7: Android Readiness
 - Touch-control overlay for Android-style play
 - Desktop toggle for testing touch controls
 - Camera follow
-- Gameplay HUD with health, score, timer, weapon icon, and ammo status
+- Gameplay HUD with health, score, timer, weapon icon, ammo status, and a stealth-safe minimap
 
 ## Controls
 
@@ -122,7 +122,7 @@ Current LAN scope:
 | Remote player damage | Prototype, host-authoritative projectiles |
 | Score and timer sync | Prototype, host-authoritative |
 | Pickups | Local prototype behavior |
-| Bots in LAN | Disabled for now |
+| Potato rivals in LAN | Disabled for now |
 | Scoreboard | Uses synced `You / Rivals` prototype scoring |
 
 ## Map Builder
@@ -162,14 +162,14 @@ Current playable custom-map behavior:
 | out_of_bounds | Defeat/respawn zone |
 | player_spawn | Player start and respawn point |
 | test_spawn | Builder-only scale marker and Test button start point |
-| bot_spawn | Bot spawn point |
+| bot_spawn | Rival spawn point |
 | item_spawn | Pickup spawn point, cycles pickup types |
 
 Multiple player spawn points are supported. The arena chooses one at random when the player starts or respawns.
 
 Custom maps no longer have an invisible default out-of-bounds line. Add explicit `out_of_bounds` zones where the map should defeat or respawn players. The builder warns when leaving a map with no out-of-bounds zones.
 
-Bots receive hazard awareness. They can drop between platforms, but try to avoid walking directly into hazard/out-of-bounds zones or through hazard/out-of-bounds zones below an edge.
+Rivals receive hazard awareness. They can drop between platforms, but try to avoid walking directly into hazard/out-of-bounds zones or through hazard/out-of-bounds zones below an edge.
 
 ## Android Notes
 

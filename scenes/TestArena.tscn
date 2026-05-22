@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://hookrex_test_arena"]
+[gd_scene load_steps=2 format=3 uid="uid://potato_test_arena"]
 
 [ext_resource type="Script" path="res://scripts/TestArena.gd" id="1_7kv55"]
 

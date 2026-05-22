@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://hookrex_map_builder"]
+[gd_scene load_steps=2 format=3 uid="uid://potato_map_builder"]
 
 [ext_resource type="Script" path="res://scripts/MapBuilder.gd" id="1_nm4vg"]
 

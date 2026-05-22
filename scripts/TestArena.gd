@@ -3,17 +3,20 @@ extends Node2D
 const PLAYER_SCENE := preload("res://scenes/Player.tscn")
 const PROJECTILE_SCENE := preload("res://scenes/Projectile.tscn")
 const TARGET_DUMMY_SCENE := preload("res://scenes/TargetDummy.tscn")
-const BOT_DINO_SCENE := preload("res://scenes/BotDino.tscn")
+const POTATO_RIVAL_SCENE := preload("res://scenes/PotatoRival.tscn")
 const PICKUP_SCENE := preload("res://scenes/Pickup.tscn")
 const EFFECT_BURST_SCENE := preload("res://scenes/EffectBurst.tscn")
 const TOUCH_CONTROLS_SCENE := preload("res://scenes/TouchControls.tscn")
+const MINIMAP_SCRIPT := preload("res://scripts/Minimap.gd")
 const CONCRETE_LAYER := 1
 const PLAYER_LAYER := 2
 const BOT_LAYER := 4
 const MESH_LAYER := 64
 const NO_GRAPPLE_LAYER := 128
+const HAZARD_LAYER := 32
 const PROJECTILE_WORLD_MASK := CONCRETE_LAYER | NO_GRAPPLE_LAYER
 const MENU_SCENE := "res://scenes/MainMenu.tscn"
+const MAP_BUILDER_SCENE := "res://scenes/MapBuilder.tscn"
 
 var player: Node
 var health_fill: ColorRect
@@ -25,7 +28,8 @@ var ammo_label: Label
 var score_label: Label
 var timer_label: Label
 var results_label: Label
-var bots: Array[Node] = []
+var minimap: Control
+var rivals: Array[Node] = []
 var players: Dictionary = {}
 var player_scores: Dictionary = {}
 var player_score := 0
@@ -42,6 +46,10 @@ var player_spawn_position := Vector2(160, 400)
 var player_spawn_positions: Array[Vector2] = []
 var bot_spawn_positions: Array[Vector2] = []
 var pickup_spawn_positions: Array[Vector2] = []
+var minimap_platform_rects: Array[Rect2] = []
+var minimap_hazard_rects: Array[Rect2] = []
+var minimap_pickup_points: Array[Vector2] = []
+var minimap_spawn_points: Array[Vector2] = []
 var hazard_rects: Array[Rect2] = []
 var lan_host_map_data: Dictionary = {}
 var arena_built := false
@@ -59,7 +67,7 @@ func _ready() -> void:
 	else:
 		_build_arena()
 		_spawn_player()
-		_spawn_bots()
+		_spawn_rivals()
 		_spawn_pickups()
 	_build_debug_ui()
 	_spawn_touch_controls()
@@ -156,12 +164,17 @@ func _build_custom_arena_data(map_data: Dictionary) -> bool:
 func _apply_custom_spawn_point(material: String, pos: Vector2) -> void:
 	match material:
 		"player_spawn":
+			if GameSettings.builder_test_mode:
+				return
 			player_spawn_positions.append(pos)
+			minimap_spawn_points.append(pos)
 			player_spawn_position = pos
 		"test_spawn":
 			if GameSettings.builder_test_mode:
 				player_spawn_positions.clear()
+				minimap_spawn_points.clear()
 				player_spawn_positions.append(pos)
+				minimap_spawn_points.append(pos)
 				player_spawn_position = pos
 		"bot_spawn":
 			bot_spawn_positions.append(pos)
@@ -223,14 +236,17 @@ func _add_platform(pos: Vector2, size: Vector2, color: Color, layer: int = CONCR
 		]
 	)
 	body.add_child(visual)
+	minimap_platform_rects.append(Rect2(pos - size * 0.5, size))
 
 
 func _add_hazard(pos: Vector2, size: Vector2, color: Color) -> void:
-	hazard_rects.append(Rect2(pos - size * 0.5, size))
+	var hazard_rect := Rect2(pos - size * 0.5, size)
+	hazard_rects.append(hazard_rect)
+	minimap_hazard_rects.append(hazard_rect)
 	var area := Area2D.new()
 	area.name = "Hazard"
 	area.position = pos
-	area.collision_layer = 32
+	area.collision_layer = HAZARD_LAYER
 	area.collision_mask = 6
 	area.body_entered.connect(_on_hazard_body_entered)
 	add_child(area)
@@ -244,11 +260,13 @@ func _add_hazard(pos: Vector2, size: Vector2, color: Color) -> void:
 
 
 func _add_out_of_bounds(pos: Vector2, size: Vector2) -> void:
-	hazard_rects.append(Rect2(pos - size * 0.5, size))
+	var hazard_rect := Rect2(pos - size * 0.5, size)
+	hazard_rects.append(hazard_rect)
+	minimap_hazard_rects.append(hazard_rect)
 	var area := Area2D.new()
 	area.name = "OutOfBounds"
 	area.position = pos
-	area.collision_layer = 32
+	area.collision_layer = HAZARD_LAYER
 	area.collision_mask = 6
 	area.body_entered.connect(_on_hazard_body_entered)
 	add_child(area)
@@ -288,6 +306,7 @@ func _spawn_player() -> void:
 	add_child(player)
 	player.global_position = _get_random_player_spawn()
 	player.died.connect(_on_player_died)
+	_refresh_minimap()
 
 
 func _setup_lan_players() -> void:
@@ -343,6 +362,10 @@ func _show_host_left_message() -> void:
 
 
 func _return_to_menu() -> void:
+	if GameSettings.builder_test_mode:
+		get_tree().change_scene_to_file(MAP_BUILDER_SCENE)
+		return
+
 	if _is_lan_match() and multiplayer.is_server():
 		_receive_host_left_game.rpc()
 		await get_tree().process_frame
@@ -422,6 +445,7 @@ func _apply_host_match_config(config: Dictionary) -> void:
 	match_time_left = float(GameSettings.match_seconds)
 	_build_arena()
 	_spawn_pickups()
+	_refresh_minimap()
 
 
 @rpc("authority", "call_local", "reliable")
@@ -442,6 +466,7 @@ func _spawn_network_player(peer_id: int, spawn_pos: Vector2) -> void:
 
 	if peer_id == multiplayer.get_unique_id():
 		player = new_player
+		_refresh_minimap()
 
 
 func _get_player_color(peer_id: int) -> Color:
@@ -670,7 +695,7 @@ func _spawn_target_dummies() -> void:
 		dummy.global_position = pos
 
 
-func _spawn_bots() -> void:
+func _spawn_rivals() -> void:
 	var default_bot_positions: Array[Vector2] = [
 		Vector2(620, 408),
 		Vector2(980, 478),
@@ -683,7 +708,7 @@ func _spawn_bots() -> void:
 
 	for index in range(requested_bot_count):
 		var pos: Vector2 = bot_positions[index]
-		var bot := BOT_DINO_SCENE.instantiate()
+		var bot := POTATO_RIVAL_SCENE.instantiate()
 		add_child(bot)
 		bot.global_position = pos
 		bot.spawn_position = pos
@@ -691,8 +716,8 @@ func _spawn_bots() -> void:
 		bot.set_pickups(pickups)
 		bot.set_hazards(hazard_rects)
 		bot.apply_difficulty_tuning(difficulty_tuning)
-		bot.died.connect(_on_bot_died)
-		bots.append(bot)
+		bot.died.connect(_on_rival_died)
+		rivals.append(bot)
 
 
 func _spawn_pickups() -> void:
@@ -722,6 +747,7 @@ func _spawn_pickups() -> void:
 			)
 
 	for item in pickup_defs:
+		minimap_pickup_points.append(item["pos"])
 		var pickup := PICKUP_SCENE.instantiate()
 		pickup.pickup_type = item["type"]
 		pickup.respawn_time = item["respawn"]
@@ -729,8 +755,9 @@ func _spawn_pickups() -> void:
 		pickup.global_position = item["pos"]
 		pickups.append(pickup)
 
-	for bot in bots:
+	for bot in rivals:
 		bot.set_pickups(pickups)
+	_refresh_minimap()
 
 
 func _build_debug_ui() -> void:
@@ -798,7 +825,22 @@ func _build_debug_ui() -> void:
 	results_label.add_theme_constant_override("shadow_offset_x", 3)
 	results_label.add_theme_constant_override("shadow_offset_y", 3)
 	canvas.add_child(results_label)
+
+	minimap = Control.new()
+	minimap.set_script(MINIMAP_SCRIPT)
+	minimap.position = Vector2(1090, 545)
+	minimap.size = Vector2(170, 150)
+	canvas.add_child(minimap)
+	_refresh_minimap()
 	_update_hud()
+
+
+func _refresh_minimap() -> void:
+	if minimap == null or not minimap.has_method("set_map_data"):
+		return
+
+	var tracked_player := player if is_instance_valid(player) else null
+	minimap.set_map_data(minimap_platform_rects, minimap_hazard_rects, minimap_pickup_points, minimap_spawn_points, tracked_player)
 
 
 func _make_panel(pos: Vector2, panel_size: Vector2) -> Panel:
@@ -869,7 +911,7 @@ func _update_match(delta: float) -> void:
 		_end_match()
 
 
-func _on_bot_died(_victim: Node, attacker: Node) -> void:
+func _on_rival_died(_victim: Node, attacker: Node) -> void:
 	if not match_active:
 		return
 
@@ -907,7 +949,7 @@ func _end_match() -> void:
 		if player_score > bot_score:
 			result = "YOU WIN"
 		elif player_score < bot_score:
-			result = "BOTS WIN"
+			result = "RIVALS WIN"
 
 		results_label.text = "%s\nPlayer %d  Rivals %d\nPress R to restart" % [result, player_score, bot_score]
 		results_label.visible = true
@@ -926,7 +968,7 @@ func _restart_match() -> void:
 	if not _is_lan_match() and is_instance_valid(player):
 		player.respawn(_get_random_player_spawn())
 
-	for bot in bots:
+	for bot in rivals:
 		bot.global_position = bot.spawn_position
 		bot.health = bot.max_health
 		bot.is_alive = true
@@ -1045,7 +1087,7 @@ func _get_match_text() -> String:
 	text += "Player score: %d\n" % player_score
 	text += "Rival score: %d\n" % bot_score
 	text += "Deaths: %d\n" % player_deaths
-	text += "Rivals alive: %d / %d\n" % [_count_alive_bots(), bots.size()]
+	text += "Rivals alive: %d / %d\n" % [_count_alive_rivals(), rivals.size()]
 	text += "Menu: Esc"
 	if _can_restart_match():
 		text += "  Restart: R"
@@ -1082,9 +1124,9 @@ func _update_hud() -> void:
 		score_label.text = "Player %d   Rivals %d" % [player_score, bot_score]
 
 
-func _count_alive_bots() -> int:
+func _count_alive_rivals() -> int:
 	var alive := 0
-	for bot in bots:
+	for bot in rivals:
 		if bot.get("is_alive"):
 			alive += 1
 	return alive

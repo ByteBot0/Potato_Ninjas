@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://hookrex_controls_settings"]
+[gd_scene load_steps=2 format=3 uid="uid://potato_controls_settings"]
 
 [ext_resource type="Script" path="res://scripts/ControlsSettings.gd" id="1_340u5"]
 

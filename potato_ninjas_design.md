@@ -1,4 +1,4 @@
-# HookRex Arena — Linux-First Game Design Brief
+# Potato Ninjas - Linux-First Game Design Brief
 
 ## Goal
 
@@ -51,17 +51,17 @@ Recommended placeholder style:
 - Hook rope: simple line
 - Hook point: small dot or claw marker
 
-Do not use DinoSmash names, assets, maps, sounds, characters, UI, or copyrighted material.
+Do not use names, assets, maps, sounds, characters, UI, or copyrighted material from other games.
 
 ### Theme Direction
 
-The prototype began with cartoon dinosaurs, but the preferred direction is now ninjas with grappling hooks. The theme fits the hook fantasy, close-range melee, stealthy foreground objects, unlockable outfits, and projectile weapons better than the original placeholder direction.
+The prototype began with cartoon potato ninjas, but the preferred direction is now ninjas with grappling hooks. The theme fits the hook fantasy, close-range melee, stealthy foreground objects, unlockable outfits, and projectile weapons better than the original placeholder direction.
 
 Core theme notes:
 
 - Player characters are stylized arena ninjas, not realistic military characters.
 - The grappling hook should feel like a ninja tool used for movement, escapes, and pulling enemies into danger.
-- Weapons should lean toward ninja/fantasy equipment instead of rifles and rockets.
+- Weapons should lean toward ninja/fantasy equipment instead of throwing stars, staffs, darts, and kusarigama.
 - Maps can support stealth-flavored visuals such as forests, rooftops, temples, bamboo platforms, bushes, and foreground trees.
 - Placeholder art is still fine while mechanics are being tested.
 
@@ -178,7 +178,7 @@ Implementation notes:
 - In LAN, player grappling should be host-authoritative like projectile damage.
 - The hooked target needs clear visual feedback so they understand why control/combat is restricted.
 - The hooker needs clear visual feedback when the hook breaks because they were damaged.
-- Bots can ignore this mechanic until PvP behavior feels good.
+- Rivals can ignore this mechanic until PvP behavior feels good.
 
 ### Hook Pulling Feel
 
@@ -237,7 +237,7 @@ Suggested ninja-theme base weapon:
 
 ### Permanent Melee Weapon
 
-Players should eventually have a permanent short-range melee weapon in addition to the rifle/blaster and grappling hook.
+Players should eventually have a permanent short-range melee weapon in addition to the throwing-star weapon and grappling hook.
 
 Preferred ninja-theme melee:
 
@@ -256,10 +256,10 @@ Initial tuning idea:
 - Fast windup
 - Short active hit window
 - Noticeable cooldown
-- Higher damage than the basic blaster
+- Higher damage than the basic throwing stars
 - Small knockback on hit
 
-This should be added after the first pickup and bot loops are working, so melee can be balanced against real combat pressure.
+This should be added after the first pickup and rival loops are working, so melee can be balanced against real combat pressure.
 
 ### Pickup Weapons
 
@@ -310,13 +310,13 @@ Suggested ninja-theme weapons:
 
 ### MVP Mode: Offline Deathmatch
 
-The first full mode should be an offline deathmatch against bots.
+The first full mode should be an offline deathmatch against rivals.
 
 Rules:
 
 - 3-minute match timer
-- Player vs bots
-- Score points by defeating bots
+- Player vs rivals
+- Score points by defeating rivals
 - Respawn after defeat
 - Highest score wins
 
@@ -329,7 +329,7 @@ Suggested menu options:
 - Play
 - Game mode selection
 - Map selection
-- Bot options
+- Rival options
 - Map builder
 - Settings
 - Quit
@@ -356,8 +356,8 @@ Match setup options should include:
 
 - Game mode
 - Map
-- Number of bots
-- Bot difficulty
+- Number of rivals
+- Rival difficulty
 - Match timer
 - Score limit
 - Pickups on / off
@@ -375,7 +375,7 @@ Future movement options to prototype:
   - Should complement grappling rather than replacing it
   - Needs cooldown, stamina, or another limiter if it becomes too strong
 
-Bot difficulty can start simple:
+Rival difficulty can start simple:
 
 - Easy: slower aim, slower firing, less pickup awareness
 - Normal: current prototype behavior
@@ -390,7 +390,7 @@ Possible later modes:
 - Team Deathmatch
 - Capture the Fossil
 - King of the Nest
-- Last Dino Standing
+- Last Potato Standing
 - Local multiplayer testing
 - Online multiplayer, only after the offline game is fun
 
@@ -465,13 +465,13 @@ Requirements:
 - 3-minute timer
 - Score tracking
 - Win/loss/results screen
-- 3 to 4 simple bots
-- Bots can move, jump, chase, and shoot
-- Bots do not need advanced hook behavior yet
+- 3 to 4 simple rivals
+- Rivals can move, jump, chase, and shoot
+- Rivals do not need advanced hook behavior yet
 
 Success criteria:
 
-The player can complete a full match against bots.
+The player can complete a full match against rivals.
 
 ## Phase 4 — Weapon Pickups
 
@@ -481,9 +481,9 @@ Requirements:
 
 - Weapon pickup spawn points
 - Pickup respawn timers
-- Shotgun pickup
-- Machine gun pickup
-- Rocket or egg launcher pickup
+- Kusarigama pickup
+- Rapid stars pickup
+- Poison blowdart pickup
 - Health pickup
 - Shield pickup
 - Limited ammo or timed pickup behavior
@@ -492,22 +492,22 @@ Success criteria:
 
 Players are encouraged to move around the map and fight over pickups.
 
-## Phase 5 — Better Bots
+## Phase 5 — Better Rivals
 
 Purpose: make offline play more interesting.
 
 Requirements:
 
-- Bots can seek weapons
-- Bots can chase player
-- Bots can retreat at low health
-- Bots can fire at player
-- Bots can navigate platforms
-- Optional simple hook usage for bots
+- Rivals can seek weapons
+- Rivals can chase player
+- Rivals can retreat at low health
+- Rivals can fire at player
+- Rivals can navigate platforms
+- Optional simple hook usage for rivals
 
 Success criteria:
 
-Bots create enough pressure to make the arena feel alive.
+Rivals create enough pressure to make the arena feel alive.
 
 ## Phase 6 — Game Feel and Polish
 
@@ -673,7 +673,7 @@ The first version does not need advanced art tools. It could be a practical bloc
 
 1. Draw geometry.
 2. Assign material.
-3. Place player and bot spawns.
+3. Place player and rival spawns.
 4. Test the map immediately.
 5. Save the map data.
 
@@ -682,13 +682,13 @@ This would make it easy to build arenas with intentional movement routes, cover,
 ## Suggested Godot Project Structure
 
 ```text
-HookRexArena/
+Potato_Ninjas/
 ├── project.godot
 ├── scenes/
 │   ├── MainMenu.tscn
 │   ├── TestArena.tscn
 │   ├── Player.tscn
-│   ├── BotDino.tscn
+│   ├── PotatoRival.tscn
 │   ├── Projectile.tscn
 │   ├── Pickup.tscn
 │   └── UI.tscn
@@ -697,7 +697,7 @@ HookRexArena/
 │   ├── GrappleHook.gd
 │   ├── WeaponController.gd
 │   ├── Projectile.gd
-│   ├── BotDino.gd
+│   ├── PotatoRival.gd
 │   ├── Health.gd
 │   ├── Pickup.gd
 │   ├── PickupSpawner.gd
@@ -710,7 +710,7 @@ HookRexArena/
 │   ├── audio/
 │   └── fonts/
 └── docs/
-    └── hookrex_arena_design.md
+    └── potato_ninjas_design.md
 ```
 
 ## Suggested First Codex Prompt
@@ -734,7 +734,7 @@ Use placeholder art only and keep scripts organized.
 1. Hook movement must feel good.
 2. Shooting while hooked must work.
 3. Movement skill should matter more than weapon strength.
-4. Offline bots come before online multiplayer.
+4. Offline rivals come before online multiplayer.
 5. Linux desktop comes before Android.
 6. Android touch controls come only after the core game is stable.
 7. Use original assets, names, maps, and sounds.

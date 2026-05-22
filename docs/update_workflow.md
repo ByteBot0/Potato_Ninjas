@@ -1,4 +1,4 @@
-# HookRex Arena Update Workflow
+# Potato Ninjas Update Workflow
 
 ## Recommended Setup
 

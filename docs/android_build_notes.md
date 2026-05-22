@@ -1,6 +1,6 @@
 # Android Build Notes
 
-HookRex Arena has the first Android-readiness layer in place:
+Potato Ninjas has the first Android-readiness layer in place:
 
 - Landscape orientation project setting
 - Touch-control overlay scene

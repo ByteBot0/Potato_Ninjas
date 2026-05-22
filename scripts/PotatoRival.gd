@@ -5,7 +5,6 @@ signal died(victim: Node, attacker: Node)
 enum WeaponKind { BLASTER, SHOTGUN, MACHINE_GUN, EGG_LAUNCHER }
 
 const PROJECTILE_SCENE := preload("res://scenes/Projectile.tscn")
-const FALL_KILL_Y := 980.0
 
 @export var move_speed := 310.0
 @export var acceleration := 2100.0
@@ -17,7 +16,14 @@ const FALL_KILL_Y := 980.0
 @export var projectile_spawn_distance := 30.0
 @export var low_health_ratio := 0.42
 
+@onready var collision_shape: CollisionShape2D = $CollisionShape2D
 @onready var body: Polygon2D = $Body
+@onready var gi_top: Polygon2D = $GiTop
+@onready var gi_lapels: Polygon2D = $GiLapels
+@onready var belt: Polygon2D = $Belt
+@onready var mask_band: Polygon2D = $MaskBand
+@onready var potato_spots: Polygon2D = $PotatoSpots
+@onready var potato_spot_two: Polygon2D = $PotatoSpotTwo
 @onready var health_bar: ColorRect = $HealthBar
 
 var gravity := ProjectSettings.get_setting("physics/2d/default_gravity") as float
@@ -38,10 +44,15 @@ var poison_tick_timer := 0.0
 var poison_attacker: Node = null
 var current_goal := "chase"
 var pickup_awareness := true
+var base_body_color := Color(0.7, 0.47, 0.25)
+var current_facing := 1.0
 
 
 func _ready() -> void:
+	_capture_visual_home_transforms()
 	spawn_position = global_position
+	body.color = base_body_color
+	_set_collision_enabled(is_alive)
 	_update_health_bar()
 
 
@@ -57,9 +68,6 @@ func _physics_process(delta: float) -> void:
 	_update_movement(delta)
 	_update_shooting()
 	move_and_slide()
-
-	if global_position.y > FALL_KILL_Y:
-		_die(null)
 
 
 func set_target(new_target: Node2D) -> void:
@@ -159,7 +167,7 @@ func _update_movement(delta: float) -> void:
 
 	if desired_axis != 0.0:
 		velocity.x = move_toward(velocity.x, desired_axis * move_speed, acceleration * delta)
-		body.scale.x = sign(desired_axis)
+		_set_facing_direction(sign(desired_axis))
 	else:
 		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
 
@@ -325,6 +333,37 @@ func _would_step_into_hazard(axis: float) -> bool:
 	return false
 
 
+func _set_facing_direction(direction: float) -> void:
+	if is_zero_approx(direction):
+		return
+
+	current_facing = -1.0 if direction < 0.0 else 1.0
+	for node in _mirrored_visual_nodes():
+		_apply_node_facing(node, current_facing)
+
+
+func _capture_visual_home_transforms() -> void:
+	for node in _mirrored_visual_nodes():
+		if node == null:
+			continue
+		node.set_meta("home_position", node.position)
+		node.set_meta("home_scale", node.scale)
+
+
+func _mirrored_visual_nodes() -> Array:
+	return [body, gi_top, gi_lapels, belt, mask_band, potato_spots, potato_spot_two]
+
+
+func _apply_node_facing(node: Node2D, facing: float) -> void:
+	if node == null:
+		return
+
+	var home_position: Vector2 = node.get_meta("home_position", node.position)
+	var home_scale: Vector2 = node.get_meta("home_scale", node.scale)
+	node.position = Vector2(home_position.x * facing, home_position.y)
+	node.scale = Vector2(home_scale.x * facing, home_scale.y)
+
+
 func _direction_is_dangerous(axis: float) -> bool:
 	return _would_step_into_hazard(axis) or _would_drop_through_hazard(axis)
 
@@ -338,11 +377,19 @@ func _would_drop_through_hazard(axis: float) -> bool:
 		global_position + Vector2(axis * 78.0, 20.0)
 	]
 
+	var probe_end_y := global_position.y + 150.0
 	for start in probe_starts:
-		if _vertical_fall_path_hits_hazard(start, FALL_KILL_Y, 18.0):
+		if _vertical_fall_path_hits_hazard(start, probe_end_y, 18.0):
 			return true
 
 	return false
+
+
+func _lowest_hazard_edge_y() -> float:
+	var lowest := global_position.y
+	for rect in hazard_rects:
+		lowest = max(lowest, rect.end.y)
+	return lowest
 
 
 func _vertical_fall_path_hits_hazard(start: Vector2, end_y: float, margin: float) -> bool:
@@ -390,6 +437,7 @@ func _set_base_weapon() -> void:
 
 func _die(attacker: Node) -> void:
 	is_alive = false
+	_set_collision_enabled(false)
 	hide()
 	velocity = Vector2.ZERO
 	respawn_timer = 1.8
@@ -409,14 +457,23 @@ func _update_respawn(delta: float) -> void:
 	poison_damage_per_tick = 0
 	poison_attacker = null
 	_set_base_weapon()
+	body.color = base_body_color
+	_set_collision_enabled(true)
 	show()
 	_update_health_bar()
+
+
+func _set_collision_enabled(enabled: bool) -> void:
+	if collision_shape == null:
+		return
+
+	collision_shape.set_deferred("disabled", not enabled)
 
 
 func _flash_body() -> void:
 	body.color = Color(1.0, 0.9, 0.3)
 	var tween := create_tween()
-	tween.tween_property(body, "color", Color(0.22, 0.08, 0.1), 0.12)
+	tween.tween_property(body, "color", base_body_color, 0.12)
 
 
 func _update_health_bar() -> void:

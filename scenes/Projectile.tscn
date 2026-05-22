@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://hookrex_projectile"]
+[gd_scene load_steps=3 format=3 uid="uid://potato_projectile"]
 
 [ext_resource type="Script" path="res://scripts/Projectile.gd" id="1_xp41d"]
 

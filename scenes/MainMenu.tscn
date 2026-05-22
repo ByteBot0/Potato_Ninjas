@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://hookrex_main_menu"]
+[gd_scene load_steps=2 format=3 uid="uid://potato_main_menu"]
 
 [ext_resource type="Script" path="res://scripts/MainMenu.gd" id="1_jjhwg"]
 
@@ -33,7 +33,7 @@ grow_horizontal = 2
 theme_override_colors/font_color = Color(0.78, 1, 0.48, 1)
 theme_override_font_sizes/font_size = 42
 horizontal_alignment = 1
-text = "HookRex Arena"
+text = "Potato Ninjas"
 
 [node name="Subtitle" type="Label" parent="."]
 layout_mode = 1
@@ -48,7 +48,7 @@ grow_horizontal = 2
 theme_override_colors/font_color = Color(0.82, 0.9, 1, 1)
 theme_override_font_sizes/font_size = 18
 horizontal_alignment = 1
-text = "Set up a prototype match"
+text = "Grapple, vanish, and fling stars"
 
 [node name="Panel" type="PanelContainer" parent="."]
 layout_mode = 1

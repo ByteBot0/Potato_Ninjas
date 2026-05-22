@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://hookrex_touch_controls"]
+[gd_scene load_steps=2 format=3 uid="uid://potato_touch_controls"]
 
 [ext_resource type="Script" path="res://scripts/TouchControls.gd" id="1_b43xg"]
 

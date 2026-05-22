@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://hookrex_target_dummy"]
+[gd_scene load_steps=3 format=3 uid="uid://potato_target_dummy"]
 
 [ext_resource type="Script" path="res://scripts/TargetDummy.gd" id="1_x0xpc"]
 

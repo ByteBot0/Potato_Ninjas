@@ -57,6 +57,8 @@ func _ready() -> void:
 	_populate_saved_maps()
 	_populate_materials()
 	map_name_edit.text = DEFAULT_MAP_NAME
+	if GameSettings.builder_test_mode and not GameSettings.builder_return_map_name.is_empty():
+		map_name_edit.text = GameSettings.builder_return_map_name
 	saved_map_options.item_selected.connect(_on_saved_map_selected)
 	save_button.pressed.connect(_save_map)
 	load_button.pressed.connect(_load_map)
@@ -64,14 +66,17 @@ func _ready() -> void:
 	delete_button.pressed.connect(_delete_selected)
 	clear_button.pressed.connect(_clear_map)
 	menu_button.pressed.connect(_request_menu)
-	var initial_map_path := GameSettings.map_path
+	var initial_map_path := TEST_MAP_PATH if GameSettings.builder_test_mode and FileAccess.file_exists(TEST_MAP_PATH) else GameSettings.map_path
 	if initial_map_path.is_empty() and GameSettings.map_name != GameSettings.DEFAULT_MAP:
 		initial_map_path = _find_saved_map_path(GameSettings.map_name)
 
 	if not initial_map_path.is_empty():
-		map_name_edit.text = initial_map_path.get_file().get_basename()
+		if not GameSettings.builder_test_mode:
+			map_name_edit.text = initial_map_path.get_file().get_basename()
 		_select_saved_map_path(initial_map_path)
 		_load_map_path(initial_map_path)
+		if GameSettings.builder_test_mode and not GameSettings.builder_return_map_name.is_empty():
+			map_name_edit.text = GameSettings.builder_return_map_name
 	else:
 		_update_status("Draw rectangles with left mouse. Select with right mouse.")
 
@@ -287,8 +292,12 @@ func _test_map() -> void:
 		return
 
 	file.store_string(JSON.stringify(data, "\t"))
+	GameSettings.builder_return_map_name = map_name_edit.text.strip_edges()
+	GameSettings.builder_return_map_path = current_map_path
 	GameSettings.apply_match_setup("Deathmatch", "Builder Test", 0, GameSettings.bot_difficulty, GameSettings.match_seconds, GameSettings.pickups_enabled, GameSettings.hazards_enabled, TEST_MAP_PATH)
 	GameSettings.builder_test_mode = true
+	GameSettings.builder_return_map_name = map_name_edit.text.strip_edges()
+	GameSettings.builder_return_map_path = current_map_path
 	GameSettings.apply_network_setup("Solo", GameSettings.lan_ip, GameSettings.lan_port)
 	get_tree().change_scene_to_file("res://scenes/TestArena.tscn")
 

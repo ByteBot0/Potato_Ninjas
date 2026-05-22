@@ -28,7 +28,7 @@ const MELEE_TARGET_MASK := PLAYER_HIT_LAYER | BOT_HIT_LAYER
 @export var swing_influence := 1.0
 @export var detach_momentum_multiplier := 1.08
 @export var air_control_while_hooked := 0.42
-@export_flags_2d_physics var grapple_collision_mask := 65
+@export_flags_2d_physics var grapple_collision_mask := 97
 @export_flags_2d_physics var projectile_block_mask := 129
 
 @export var fire_rate := 5.0
@@ -54,7 +54,13 @@ const MELEE_TARGET_MASK := PLAYER_HIT_LAYER | BOT_HIT_LAYER
 @onready var hook_tip_visual: Polygon2D = $HookTip
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 @onready var body: Polygon2D = $Body
+@onready var gi_top: Polygon2D = $GiTop
+@onready var gi_lapels: Polygon2D = $GiLapels
+@onready var belt: Polygon2D = $Belt
+@onready var mask_band: Polygon2D = $MaskBand
 @onready var eye: Polygon2D = $Eye
+@onready var potato_spots: Polygon2D = $PotatoSpots
+@onready var potato_spot_two: Polygon2D = $PotatoSpotTwo
 @onready var weapon_visual: Polygon2D = $WeaponVisual
 @onready var staff_spin: Polygon2D = $StaffSpin
 @onready var health_bar: ColorRect = $HealthBar
@@ -93,7 +99,8 @@ var poison_attacker: Node = null
 var remote_target_position := Vector2.ZERO
 var remote_target_velocity := Vector2.ZERO
 var remote_has_state := false
-var base_body_color := Color(0.435294, 0.890196, 0.356863)
+var base_body_color := Color(0.78, 0.56, 0.31)
+var current_facing := 1.0
 var eye_home_position := Vector2.ZERO
 var _touch_controls: Node = null
 var _touch_grapple_was_pressed := false
@@ -101,6 +108,7 @@ var _last_aim_direction := Vector2.RIGHT
 
 
 func _ready() -> void:
+	_capture_visual_home_transforms()
 	eye_home_position = eye.position
 	_update_health_bar()
 	_set_collision_enabled(is_alive)
@@ -150,8 +158,8 @@ func _process(delta: float) -> void:
 
 func configure_network_player(peer_id: int, is_local_player: bool, player_color: Color) -> void:
 	network_peer_id = peer_id
-	base_body_color = player_color
 	body.color = base_body_color
+	mask_band.color = player_color.darkened(0.35)
 	eye_home_position = eye.position
 	set_multiplayer_authority(peer_id)
 	camera.enabled = is_local_player
@@ -470,6 +478,8 @@ func _update_firing_hook(delta: float) -> void:
 
 	var space_state := get_world_2d().direct_space_state
 	var query := PhysicsRayQueryParameters2D.create(previous_tip, hook_tip, grapple_collision_mask, [get_rid()])
+	query.collide_with_areas = true
+	query.collide_with_bodies = true
 	var hit := space_state.intersect_ray(query)
 	if not hit.is_empty():
 		hook_anchor = hit.position
@@ -533,8 +543,8 @@ func _update_visuals() -> void:
 
 	if aim.length_squared() > 0.1:
 		muzzle.position = aim.normalized() * projectile_spawn_distance
-		weapon_visual.position = muzzle.position
-		weapon_visual.rotation = aim.angle()
+		_apply_node_facing(muzzle, current_facing)
+		_apply_node_facing(weapon_visual, current_facing)
 
 	shield_ring.visible = shield_time > 0.0
 	if shield_ring.visible:
@@ -560,7 +570,7 @@ func get_debug_text() -> String:
 	elif attached:
 		hook_distance = global_position.distance_to(hook_anchor)
 
-	var text := "HookRex Arena - Phase 2 Shooting Playground\n"
+	var text := "Potato Ninjas - Shooting Playground\n"
 	text += "Move: A/D  Jump: Space/W  Fire: Left Mouse  Melee: F  Hook: Right Mouse  Fast fall: S\n"
 	text += "Velocity: %s\n" % _format_vec(velocity)
 	text += "Hook state: %s\n" % _hook_state_name()
@@ -925,10 +935,31 @@ func _set_facing_direction(direction: float) -> void:
 	if is_zero_approx(direction):
 		return
 
-	var facing := -1.0 if direction < 0.0 else 1.0
-	body.scale.x = facing
-	if eye != null:
-		eye.position.x = abs(eye_home_position.x) * facing
+	current_facing = -1.0 if direction < 0.0 else 1.0
+	for node in _mirrored_visual_nodes():
+		_apply_node_facing(node, current_facing)
+
+
+func _capture_visual_home_transforms() -> void:
+	for node in _mirrored_visual_nodes():
+		if node == null:
+			continue
+		node.set_meta("home_position", node.position)
+		node.set_meta("home_scale", node.scale)
+
+
+func _mirrored_visual_nodes() -> Array:
+	return [body, gi_top, gi_lapels, belt, mask_band, eye, potato_spots, potato_spot_two, weapon_visual, staff_spin, muzzle, shield_ring]
+
+
+func _apply_node_facing(node: Node2D, facing: float) -> void:
+	if node == null:
+		return
+
+	var home_position: Vector2 = node.get_meta("home_position", node.position)
+	var home_scale: Vector2 = node.get_meta("home_scale", node.scale)
+	node.position = Vector2(home_position.x * facing, home_position.y)
+	node.scale = Vector2(home_scale.x * facing, home_scale.y)
 
 
 func _update_weapon_visual() -> void:
